@@ -51,6 +51,10 @@ void remove_stop(Data *db, Args *args) {
             }
             node->line->last = node->prev;
         }
+        if (node->next == node) {
+            node->line->first = NULL;
+            node->line->last = NULL;
+        }
         node->line->stop_idx--;
         free(node);
     }

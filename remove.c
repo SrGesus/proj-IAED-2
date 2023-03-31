@@ -14,10 +14,10 @@ void remove_line(Data *db, Args *args) {
     /*
         Free memory and move all other elements left
     */
-    for (free_line(line); i < db->line_idx-1; i++) {
-        db->lines[i] = db->lines[i+1];
-    }
-    db->line_idx--;
+    printf("line_idx: %d\n", db->line_idx);
+    free_line(line);
+    db->stops = VECremove((void **)db->lines, i, &db->line_idx, db, args);
+    printf("line_idx: %d\n", db->line_idx);
 }
 
 /*
@@ -53,12 +53,14 @@ void remove_stop(Data *db, Args *args) {
             }
             node->line->last = node->prev;
         }
-
+        free(node);
     }
 
     /*
         Free memory and move all other elements left
     */  
+    printf("stop_idx: %d\n", db->stop_idx);
     free_stop(stop);
     db->stops = VECremove((void **)db->stops, i, &db->stop_idx, db, args);
+    printf("stop_idx: %d\n", db->stop_idx);
 }

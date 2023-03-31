@@ -6,7 +6,7 @@
 */
 void *wrap_calloc(size_t n, size_t size, Data *db, Args *args) {
     void *ptr = calloc(n, size);
-    if (ptr == NULL) {
+    if (ptr == NULL&& n*size != 0) {
         printf("No Memory.\n");
         clean_db(db);
         clean_args(args);
@@ -21,7 +21,7 @@ void *wrap_calloc(size_t n, size_t size, Data *db, Args *args) {
 */
 void *wrap_realloc(void *ptr, size_t n, size_t size, Data *db, Args *args) {
     ptr = realloc(ptr, n * size);
-    if (ptr == NULL) {
+    if (ptr == NULL && n*size != 0) {
         printf("No Memory.\n");
         clean_db(db);
         clean_args(args);
@@ -57,8 +57,10 @@ void clean_db(Data *db) {
     }
     if (i != 0)
         free(db->stops);
-    db->line_idx = 0;
+    db->lines = NULL;
+    db->stops = NULL;
     db->stop_idx = 0;
+    db->line_idx = 0;
 }
 
 

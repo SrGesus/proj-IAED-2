@@ -52,6 +52,11 @@ void connect_connection(
         line->stop_idx++;
     }
 
+    if (origin == destination && origin_node == NULL) {
+        origin_node = destination_node;
+        line->first = origin_node;
+        line->stop_idx++;
+    }
     /* If there's no node for the origin yet create one */
     if (origin_node == NULL) {
         origin_node = create_node(line, origin, db, args);

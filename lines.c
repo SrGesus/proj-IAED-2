@@ -76,6 +76,7 @@ void create_line(Data *db, Args *args) {
 */
 void describe_line(Line *line, int invert) {
     Node *node;
+    int i;
 
     /* If line has no connections break*/
     if (line->first == NULL) {
@@ -97,13 +98,8 @@ void describe_line(Line *line, int invert) {
 
     } else {
         node = line->first;
-        printf("%s", line->first->stop->name);
-        /* If connection is circular print now */
-        if (node->next != NULL && line->first == line->last) {
-            node = node->next;
-            printf(", %s", node->stop->name);
-        }
-        while (node != line->last) {
+        printf("%s", node->stop->name);
+        for(i = 1; i < line->stop_idx; i++) {
             node = node->next;
             printf(", %s", node->stop->name);
         }

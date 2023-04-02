@@ -4,14 +4,17 @@
     Handles 'i' command
 */
 void handle_inter(Data *db) {
-    int i, j;
-    Stop *stop;
-    for (i = 0; i < db->stop_idx; i++) {
-        stop = db->stops[i];
-        if (stop->node_idx > 1) {
-            printf("%s %d:", stop->name, stop->node_idx);
-            for (j = 0; j < stop->node_idx; j++) {
-                printf(" %s", stop->nodes[j]->line->name);
+    int i = 0, j;
+    Stop *stop = NULL;
+    while (VECiter(&db->stops, &i, (void **)&stop)) {
+        if (stop->lines.length > 1) {
+            char *line_name = NULL;
+            
+            printf("%s %d:", stop->name, stop->lines.length);
+            
+            j = 0;
+            while (VECiter(&stop->lines, &j, (void**)&line_name)) {
+                printf(" %s", line_name);
             }
             putchar('\n');
         }

@@ -8,8 +8,9 @@ void handle_connect(Data *db, Args *args) {
     Line *line = get_line(db, args->args[1], NULL);
     Stop *origin = get_stop(db, args->args[2], NULL);
     Stop *destination = get_stop(db, args->args[3], NULL);
+    DLNode *head, *tail;
     double cost, duration;
-    Node *origin_node = NULL, *destination_node = NULL;
+    StopNode *origin_node = NULL;
 
     if (!valid_connect(args, line, origin, destination, &cost, &duration))
         return;
@@ -17,80 +18,70 @@ void handle_connect(Data *db, Args *args) {
     line->cost += cost;
     line->duration += duration;
 
-    if (line->first != NULL && destination == line->first->stop) {
-        destination_node = line->first;
-    } 
+    tail = line->path.tail;
+    head = line->path.head;
 
-    if (line->last != NULL && origin == line->last->stop) {
-        origin_node = line->last;
+    /* Insert at the end */
+    if (tail != NULL && origin == ((StopNode *)tail->value)->stop) {
+        ((StopNode *)tail->value)->cost = cost;
+        ((StopNode *)tail->value)->duration = duration;
+        create_node(line, destination, db, args, false);
+        return;
     }
 
-    connect_connection(db, args, line, origin, destination, 
-        origin_node, destination_node, cost, duration
-    );
-
-}
-
-void connect_connection(
-    Data *db, Args *args, Line *line, 
-    Stop *origin, Stop *destination,
-    Node *origin_node, Node *destination_node,
-    double cost, double duration
-) {
-    /* If line is circular*/
-    if (origin_node != NULL && destination_node != NULL) {
-        line->last = destination_node;
-        line->stop_idx++;
-    }
-
-    /* If there's no node for the destination yet create one */
-    if (destination_node == NULL) {
-        destination_node = create_node(line, destination, db, args);
-        insert_node(destination, destination_node, db, args);
-        
-        line->last = destination_node;
-        line->stop_idx++;
-    }
-
-    if (origin == destination && origin_node == NULL) {
-        origin_node = destination_node;
-        line->first = origin_node;
-        line->stop_idx++;
-    }
-    /* If there's no node for the origin yet create one */
-    if (origin_node == NULL) {
-        origin_node = create_node(line, origin, db, args);
-        insert_node(origin, origin_node, db, args);
-        line->first = origin_node;
-        line->stop_idx++;
-    }
-    
+    /* Insert at the start */
+    origin_node = create_node(line, origin, db, args, true);
     origin_node->cost = cost;
     origin_node->duration = duration;
-    origin_node->next = destination_node;
-    destination_node->prev = origin_node;
+
+    if (head != NULL) {
+        return;
+    } 
+
+    /* If line was originally empty we still need to add the last node */
+    create_node(line, destination, db, args, false);
 }
 
-Node *create_node(Line *line, Stop *stop, Data *db, Args *args) {
-    Node *node = wrap_calloc(1, sizeof(Node), db, args);
+/* Create a new node and push it to the list */
+StopNode *create_node(Line *line, Stop *stop, Data *db, Args *args, int start) {
+    StopNode *node = wrap_calloc(1, sizeof(StopNode), db, args);
+    DLNode *dlnode = NULL;
     node->line = line;
     node->stop = stop;
+    if (start) {
+        dlnode = DLLISTpush(&line->path, NULL, node, db, args);
+    } else {
+        dlnode = DLLISTpush(&line->path, line->path.tail, node, db, args);
+    }
+    insert_node(node->stop, dlnode, db, args);
     return node;
 }
 
 /* 
     Inserts a node into a stop alphabetically
 */
-void insert_node(Stop *stop, Node *node, Data *db, Args *args) {
-    int i;
+void insert_node(Stop *stop, DLNode *dlnode, Data *db, Args *args) {
+    int i = 0, res;
+    StopNode *node = dlnode->value;
+    char *name = NULL;
+
+    VECinsert(&stop->nodes, stop->nodes.length, dlnode, db, args);
 
     /* Find the first position where the target line name fits alphabetically */
-    for(i = 0; i < stop->node_idx; i++)
-        if (strcmp(stop->nodes[i]->line->name, node->line->name) >= 0)
+    while (VECiter(&stop->lines, &i, (void **)&name)) {
+        res = strcmp(name, node->line->name);
+        /* Name already on list */
+        if (res == 0)
+            return;
+
+        if (res > 0) {
+            i--;
             break;
+        }
+    }
     
-    /* Insert the line into the position */
-    stop->nodes = VECinsert((void **)stop->nodes, node, i, &stop->node_idx, db, args);
+    /* Insert the name into the position */
+    VECinsert(&stop->lines, i, node->line->name, db, args);
 }
 
 /*
@@ -129,9 +120,9 @@ enum NextAction valid_connect(
 
     /* if there are stops in the line 
     and the connection is between invalid stops */
-    if (line->first != NULL && 
-    (destination != line->first->stop && 
-    origin != line->last->stop)) {
+    if (line->path.head != NULL && 
+    (destination != ((StopNode *)line->path.head->value)->stop && 
+    origin != ((StopNode *)line->path.tail->value)->stop)) {
         printf("link cannot be associated with bus line.\n");
         return EXIT;
     }

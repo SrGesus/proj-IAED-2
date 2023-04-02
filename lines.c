@@ -42,14 +42,13 @@ void handle_line(Data *db, Args *args) {
     writes index to index if not NULL
 */
 Line *get_line(Data *db, char *name, int *index) {
-    int i;
-    struct Line *line;
+    int i = 0;
+    Line *line;
     /* Linear search */
-    for(i = 0; i < db->line_idx; i++) {
-        line = db->lines[i];
+    while (VECiter(&db->lines, &i, (void **)&line)) {
         if (strcmp(line->name, name) == 0) {
             if (index != NULL)
-                *index = i;
+                *index = --i;
             return line;
         }
     }
@@ -61,13 +60,12 @@ Line *get_line(Data *db, char *name, int *index) {
     fetches its name from the args
 */
 void create_line(Data *db, Args *args) {
-    int *i = &db->line_idx;
     Line *line = wrap_calloc(1, sizeof(Line), db, args);
     line->name = args->args[1];
     /* Remove the pointer to the name from the args struct
             so it won't be freed later */
     args->args[1] = NULL;
-    db->lines = VECinsert((void **)db->lines, line, *i, i, db, args);
+    VECinsert(&db->lines, db->lines.length, (void *)line, db, args);
     return;
 }
 
@@ -75,34 +73,24 @@ void create_line(Data *db, Args *args) {
     Prints all stops of a given line
 */
 void describe_line(Line *line, int invert) {
-    Node *node;
-    int i;
+    DLNode *node = NULL;
+    int i = 0;
 
     /* If line has no connections break*/
-    if (line->first == NULL) {
+    if (line->path.length == 0) {
         return;
     }
     
     if (invert) {
-        node = line->last;
-        printf("%s", line->last->stop->name);
-        /* If connection is circular print now */
-        if (node->prev != NULL && line->first == line->last) {
-            node = node->prev;
-            printf(", %s", node->stop->name);
-        }
-        while (node != line->first) {
-            node = node->prev;
-            printf(", %s", node->stop->name);
-        }
-
+        DLLISTiter_iver(&line->path, &i, &node);
+        printf("%s", ((StopNode *)node->value)->stop->name);
+        while (DLLISTiter_iver(&line->path, &i, &node))
+            printf(", %s", ((StopNode *)node->value)->stop->name);
     } else {
-        node = line->first;
-        printf("%s", node->stop->name);
-        for(i = 1; i < line->stop_idx; i++) {
-            node = node->next;
-            printf(", %s", node->stop->name);
-        }
+        DLLISTiter(&line->path, &i, &node);
+        printf("%s", ((StopNode *)node->value)->stop->name);
+        while (DLLISTiter(&line->path, &i, &node))
+            printf(", %s", ((StopNode *)node->value)->stop->name);
     }
     putchar('\n');
 }
@@ -111,17 +99,16 @@ void describe_line(Line *line, int invert) {
     Prints all lines and their data
 */
 void list_lines(Data *db) {
-    int i;
-    struct Line *line;
-    for(i = 0; i < db->line_idx; i++) {
-        line = db->lines[i];
+    int i = 0;
+    Line *line = NULL;
+    while (VECiter(&db->lines, &i, (void **)&line)) {
         printf("%s ", line->name);
         /* Don't print origin and destination if they don't exist*/
-        if (line->first != NULL) {
-            printf("%s ", line->first->stop->name);
-            printf("%s ", line->last->stop->name);
+        if (line->path.length > 0) {
+            printf("%s ", ((StopNode *)line->path.head->value)->stop->name);
+            printf("%s ", ((StopNode *)line->path.tail->value)->stop->name);
         }
-        printf("%d %.2f %.2f\n", line->stop_idx, line->cost, line->duration);
+        printf("%d %.2f %.2f\n", line->path.length, line->cost, line->duration);
     }
 
     return;

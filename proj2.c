@@ -1,5 +1,7 @@
 #include "proj.h"
 
+#include "proj.h"
+
 int main() {
     Data db = {0};
     Args args = read_line(&db);
@@ -45,6 +47,7 @@ enum NextAction prompt_command(Data *db, Args *args) {
             clean_db(db);
             return CONTINUE;
         default:
+            printf("%c: Command not found.\n", c); 
             return CONTINUE;
     }
 }

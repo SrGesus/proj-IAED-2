@@ -3,12 +3,12 @@
 /*
     Reads a line and returns it as an args struct
 */
-struct Args read_line(Data *db) {
+Args read_line(Data *db) {
     int i;
     char c = '\0';
     char arg[BUFSIZ];
     char *arg_ptr = NULL;
-    struct Args args = {0};
+    Args args = {0};
 
     for (i = 0; c != '\n' && c != EOF; args.argc = ++i) {
         c = read_name(arg);

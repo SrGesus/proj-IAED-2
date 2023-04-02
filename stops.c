@@ -25,7 +25,6 @@ void create_stop(Data *db, Args *args) {
     double lat, lon;
     char *name = args->args[1];
     Stop *stop = get_stop(db, name, NULL);
-    int *i;
 
     if (stop != NULL) {
         printf("%s: stop already exists.\n", name);
@@ -41,8 +40,7 @@ void create_stop(Data *db, Args *args) {
     sscanf(args->args[3], "%lf", &lon);
     stop->lat = lat;
     stop->lon = lon;
-    i = &db->stop_idx;
-    db->stops = VECinsert((void **)db->stops, stop, *i, i, db, args);
+    VECinsert(&db->stops, db->stops.length, stop, db, args);
 }
 
 /*
@@ -61,12 +59,11 @@ void describe_stop(Data *db, char *name) {
     Prints all stops and their data
 */
 void list_stops(Data *db) {
-    int i;
-    struct Stop *stop;
-    for(i = 0; i < db->stop_idx; i++) {
-        stop = db->stops[i];
+    int i = 0;
+    Stop *stop = NULL;
+    while (VECiter(&db->stops, &i, (void **)&stop)) {
         printf("%s: ", stop->name);
-        printf("%16.12f %16.12f %d\n", stop->lat, stop->lon, stop->node_idx);
+        printf("%16.12f %16.12f %d\n", stop->lat, stop->lon, stop->lines.length);
     }
     return;
 }
@@ -77,13 +74,13 @@ void list_stops(Data *db) {
     Saves index to index if not NULL
 */
 Stop *get_stop(Data *db, char *name, int *index) {
-    int i;
-    struct Stop *stop;
-    for(i = 0; i < db->stop_idx; i++) {
-        stop = db->stops[i];
+    int i = 0;
+    Stop *stop;
+    /* Linear Search */
+    while (VECiter(&db->stops, &i, (void **)&stop)) {
         if (strcmp(stop->name, name) == 0) {
             if (index != NULL)
-                *index = i;
+                *index = --i;
             return stop;
         }
     }

@@ -46,8 +46,8 @@ void clean_args(Args *args) {
     Free all dynamic memory of the Data struct
 */
 void clean_db(Data *db) {
-    VECdestroy(&db->stops, free_stop);
-    VECdestroy(&db->lines, free_line);
+    DLLISTdestroy(&db->stops, free_stop);
+    DLLISTdestroy(&db->lines, free_line);
 }
 
 
@@ -59,22 +59,30 @@ void do_nothing(void *value) {
 /*
     Frees a stop struct, assumes everything will be freed as well
 */
-void free_stop(void *stop_void) {
-    Stop *stop = stop_void;
+void free_stop(DLNode *node) {
+    Stop *stop;
+    if (node == NULL)
+      return;
+    stop = node->value;
     free(stop->name);
     VECdestroy(&stop->nodes, do_nothing);
     VECdestroy(&stop->lines, do_nothing);
     free(stop);
+    free(node);
 }
 
 /*
     Frees a line struct, assumes everything will be freed as well
 */
-void free_line(void *line_void) {
-    Line *line = line_void;
+void free_line(DLNode *node) {
+    Line *line;
+    if (node == NULL)
+      return;
+    line = node->value;
     free(line->name);
     DLLISTdestroy(&line->path, free_node);
     free(line);
+    free(node);
 }
 
 /*

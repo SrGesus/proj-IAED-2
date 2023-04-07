@@ -4,8 +4,3 @@
 !**.md
 !**.c
 !**.h
-!public-tests/
-!public-tests/*.in
-!public-tests/*.out
-!public-tests/Makefile
-

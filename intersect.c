@@ -5,8 +5,9 @@
 */
 void handle_inter(Data *db) {
     int i = 0, j;
-    Stop *stop = NULL;
-    while (VECiter(&db->stops, &i, (void **)&stop)) {
+    DLNode *node = NULL;
+    while (DLLISTiter(&db->stops, &i, &node)) {
+        Stop *stop = node->value;
         if (stop->lines.length > 1) {
             char *line_name = NULL;
             

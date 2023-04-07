@@ -47,7 +47,6 @@ enum NextAction prompt_command(Data *db, Args *args) {
             clean_db(db);
             return CONTINUE;
         default:
-            printf("%c: Command not found.\n", c); 
             return CONTINUE;
     }
 }

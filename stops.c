@@ -40,7 +40,7 @@ void create_stop(Data *db, Args *args) {
     sscanf(args->args[3], "%lf", &lon);
     stop->lat = lat;
     stop->lon = lon;
-    VECinsert(&db->stops, db->stops.length, stop, db, args);
+    DLLISTpush(&db->stops, db->stops.tail, stop, db, args);
 }
 
 /*
@@ -60,8 +60,9 @@ void describe_stop(Data *db, char *name) {
 */
 void list_stops(Data *db) {
     int i = 0;
-    Stop *stop = NULL;
-    while (VECiter(&db->stops, &i, (void **)&stop)) {
+    DLNode *node = NULL;
+    while (DLLISTiter(&db->stops, &i, &node)) {
+        Stop *stop = node->value;
         printf("%s: ", stop->name);
         printf("%16.12f %16.12f %d\n", stop->lat, stop->lon, stop->lines.length);
     }
@@ -73,16 +74,18 @@ void list_stops(Data *db) {
     or a null pointer if there is none
     Saves index to index if not NULL
 */
-Stop *get_stop(Data *db, char *name, int *index) {
-    int i = 0;
-    Stop *stop;
-    /* Linear Search */
-    while (VECiter(&db->stops, &i, (void **)&stop)) {
-        if (strcmp(stop->name, name) == 0) {
-            if (index != NULL)
-                *index = --i;
-            return stop;
-        }
-    }
-    return NULL;
+Stop *get_stop(Data *db, char *name, DLNode **node) {
+  int i = 0;
+  DLNode *temp;
+  
+  if (node == NULL)
+    node = &temp;
+
+  /* Linear Search */
+  while (DLLISTiter(&db->stops, &i, node)) {
+    Stop *stop = (*node)->value;
+    if (strcmp(stop->name, name) == 0)
+      return stop;
+  }
+  return NULL;
 }

@@ -37,22 +37,24 @@ void handle_line(Data *db, Args *args) {
 }
 
 /*
-    Returns the pointer to a line with name == name[]
-    or a null pointer if there is none
-    writes index to index if not NULL
+  Returns the pointer to a line with name == name[]
+  or a null pointer if there is none
+  writes the node pointer to node  
 */
-Line *get_line(Data *db, char *name, int *index) {
-    int i = 0;
-    Line *line;
-    /* Linear search */
-    while (VECiter(&db->lines, &i, (void **)&line)) {
-        if (strcmp(line->name, name) == 0) {
-            if (index != NULL)
-                *index = --i;
-            return line;
-        }
-    }
-    return NULL;
+Line *get_line(Data *db, char *name, DLNode **node) {
+  int i = 0;
+  DLNode *temp;
+
+  if (node == NULL)
+    node = &temp;
+
+  /* Linear search */
+  while (DLLISTiter(&db->lines, &i, node)) {
+    Line *line = (*node)->value;  
+    if (strcmp(line->name, name) == 0)
+      return line;
+  }
+  return NULL;
 }
 
 /*
@@ -65,7 +67,7 @@ void create_line(Data *db, Args *args) {
     /* Remove the pointer to the name from the args struct
             so it won't be freed later */
     args->args[1] = NULL;
-    VECinsert(&db->lines, db->lines.length, (void *)line, db, args);
+    DLLISTpush(&db->lines, db->lines.tail, (void *)line, db, args);
     return;
 }
 
@@ -96,20 +98,22 @@ void describe_line(Line *line, int invert) {
 }
 
 /*
-    Prints all lines and their data
+  Prints all lines and their data
 */
 void list_lines(Data *db) {
-    int i = 0;
-    Line *line = NULL;
-    while (VECiter(&db->lines, &i, (void **)&line)) {
-        printf("%s ", line->name);
-        /* Don't print origin and destination if they don't exist*/
-        if (line->path.length > 0) {
-            printf("%s ", ((StopNode *)line->path.head->value)->stop->name);
-            printf("%s ", ((StopNode *)line->path.tail->value)->stop->name);
-        }
-        printf("%d %.2f %.2f\n", line->path.length, line->cost, line->duration);
+  int i = 0;
+  DLNode *node = NULL;
+  while (DLLISTiter(&db->lines, &i, &node)) {
+      
+    Line *line = node->value;
+    printf("%s ", line->name);
+    /* Don't print origin and destination if they don't exist*/
+    if (line->path.length > 0) {
+      printf("%s ", ((StopNode *)line->path.head->value)->stop->name);
+      printf("%s ", ((StopNode *)line->path.tail->value)->stop->name);
     }
+    printf("%d %.2f %.2f\n", line->path.length, line->cost, line->duration);
+  }
 
-    return;
+  return;
 }

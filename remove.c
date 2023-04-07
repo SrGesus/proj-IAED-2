@@ -4,8 +4,8 @@
     Handles 'r' command
 */
 void remove_line(Data *db, Args *args) {
-    int i = 0;
-    Line *line = get_line(db, args->args[1], &i);
+    DLNode *node = NULL;
+    Line *line = get_line(db, args->args[1], &node);
     if (line == NULL) {
         printf("%s: no such line.\n", args->args[1]);
         return;
@@ -15,7 +15,7 @@ void remove_line(Data *db, Args *args) {
         Free memory and move all other elements left
     */
     clean_line(line);
-    VECremove(&db->lines, i, db, args);
+    DLLISTremove(&db->lines, node);
 }
 
 /*
@@ -68,40 +68,48 @@ void clean_node_line(DLNode *dlnode) {
     Handles 'e' command
 */
 void remove_stop(Data *db, Args *args) {
-    int i = 0, j = 0;
-    Stop *stop = get_stop(db, args->args[1], &i);
-    DLNode *dlnode = NULL;
+    DLNode *node = NULL;
+    Stop *stop = get_stop(db, args->args[1], &node);
     if (stop == NULL) {
         printf("%s: no such stop.\n", args->args[1]);
         return;
     }
 
-    while (VECiter(&stop->nodes, &j, (void **)&dlnode)) {
-        StopNode *node = dlnode->value;
+    VECdestroy(&stop->nodes, clean_node_stop);        
+    
 
-        if (dlnode->prev) {
-            StopNode *prev = dlnode->prev->value;
-            if (dlnode->next) {
-                prev->duration += node->duration;
-                prev->cost += node->cost;
-            } else {
-                node->line->duration -= prev->duration;
-                node->line->cost -= prev->cost;
-                prev->duration = 0.0;
-                prev->cost = 0.0;
-            }
-        } else {
-            node->line->duration -= node->duration;
-            node->line->cost -= node->cost;
-        }
-
-        DLLISTremove(&node->line->path, dlnode);
-        free(node); 
-    }
-
-    VECremove(&db->stops, i, db, args);
+    DLLISTremove(&db->stops, node);
     free(stop->name);
     free(stop->lines.values);
     free(stop->nodes.values);
     free(stop);
+}
+
+/*
+    Cleanly frees a DLNode containing a StopNode, and removes it
+    from the path on the line and adjusts the duration and cost accordingly
+    used for when removing stop
+*/
+void clean_node_stop(void *value) {
+    DLNode *dlnode = value;
+    StopNode *node = dlnode->value;
+
+    if (dlnode->prev) {
+        StopNode *prev = dlnode->prev->value;
+        if (dlnode->next) {
+            prev->duration += node->duration;
+            prev->cost += node->cost;
+        } else {
+            node->line->duration -= prev->duration;
+            node->line->cost -= prev->cost;
+            prev->duration = 0.0;
+            prev->cost = 0.0;
+        }
+    } else {
+        node->line->duration -= node->duration;
+        node->line->cost -= node->cost;
+    }
+
+    DLLISTremove(&node->line->path, dlnode);
+    free(node); 
 }

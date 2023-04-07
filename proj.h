@@ -50,8 +50,8 @@ typedef struct {
 } StopNode;
 
 typedef struct {
-    Vec stops;
-    Vec lines;
+    DLList stops;
+    DLList lines;
 } Data;
 
 typedef struct {
@@ -89,8 +89,8 @@ void *wrap_realloc(void *ptr, size_t n, size_t size, Data *db, Args *args);
 void clean_args(Args *args);
 void clean_db(Data *db);
 void do_nothing(void *value);
-void free_stop(void *stop_void);
-void free_line(void *line_void);
+void free_stop(DLNode *stop_void);
+void free_line(DLNode *line_void);
 void free_node(DLNode *dlnode);
 
 /* stops.c */
@@ -98,11 +98,11 @@ void handle_stop(Data *db, Args *args);
 void create_stop(Data *db, Args *args);
 void list_stops(Data *db);
 void describe_stop(Data *db, char *name);
-Stop *get_stop(Data *db, char *name, int *index);
+Stop *get_stop(Data *db, char *name, DLNode **index);
 
 /* lines.c */
 void handle_line(Data *db, Args *args);
-Line *get_line(Data *db, char *name, int *index);
+Line *get_line(Data *db, char *name, DLNode **node);
 void create_line(Data *db, Args *args);
 void describe_line(Line *line, int invert);
 void list_lines(Data *db);
@@ -124,7 +124,6 @@ void remove_line(Data *db, Args *args);
 void clean_line(Line *line);
 void clean_node_line(DLNode *dlnode);
 void remove_stop(Data *db, Args *args);
-
-
+void clean_node_stop(void *value);
 
 #endif

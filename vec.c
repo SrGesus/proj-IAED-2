@@ -11,8 +11,8 @@ void VECinsert(Vec *vec, int i, void *value, Data *db, Args *args) {
             vec->size++;
         }
         vec->size *= 2;
+        vec->values = wrap_realloc(vec->values, vec->size, sizeof(void *), db, args);
     }
-    vec->values = wrap_realloc(vec->values, vec->size, sizeof(void *), db, args);
     /* Shift items to the right of i one step right */
     for(j = vec->length-1; j > i; j--) {
         vec->values[j] = vec->values[j-1];

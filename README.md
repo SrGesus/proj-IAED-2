@@ -12,7 +12,7 @@ Informações detalhadas sobre o processo de submissão estão disponíveis em [
 
 # Evaluation
 
-2023-04-02T16:23:53
+2023-04-08T00:29:16
 
 ## Test 1: [+ Accepted+].
 ## Test 2: [+ Accepted+].
@@ -55,23 +55,23 @@ Informações detalhadas sobre o processo de submissão estão disponíveis em [
 
 
 ```
-==10456== Memcheck, a memory error detector
-==10456== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==10456== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
-==10456== Command: ./proj.out
-==10456== 
-==10456== 
-==10456== HEAP SUMMARY:
-==10456==     in use at exit: 0 bytes in 0 blocks
-==10456==   total heap usage: 365 allocs, 365 frees, 13,750 bytes allocated
-==10456== 
-==10456== All heap blocks were freed -- no leaks are possible
-==10456== 
-==10456== For counts of detected and suppressed errors, rerun with: -v
-==10456== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==32728== Memcheck, a memory error detector
+==32728== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==32728== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==32728== Command: ./proj.out
+==32728== 
+==32728== 
+==32728== HEAP SUMMARY:
+==32728==     in use at exit: 0 bytes in 0 blocks
+==32728==   total heap usage: 329 allocs, 329 frees, 12,422 bytes allocated
+==32728== 
+==32728== All heap blocks were freed -- no leaks are possible
+==32728== 
+==32728== For counts of detected and suppressed errors, rerun with: -v
+==32728== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 
 ```
 
 
-Your code will not be reevaluated if you submit before 2023-04-02 16:33:53 @ Lisbon, Portugal. You need to wait 10 minute(s).
+Your code will not be reevaluated if you submit before 2023-04-08 00:39:16 @ Lisbon, Portugal. You need to wait 10 minute(s).
 

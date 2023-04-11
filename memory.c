@@ -6,11 +6,12 @@
 */
 void *wrap_calloc(size_t n, size_t size, Data *db, Args *args) {
     void *ptr = calloc(n, size);
-    if (ptr == NULL&& n*size != 0) {
+    
+    if (ptr == NULL && n*size != 0) {
         printf("No Memory.\n");
         clean_db(db);
         clean_args(args);
-        exit(0);
+        exit(1);
     }
     return ptr;
 }
@@ -25,7 +26,7 @@ void *wrap_realloc(void *ptr, size_t n, size_t size, Data *db, Args *args) {
         printf("No Memory.\n");
         clean_db(db);
         clean_args(args);
-        exit(0);
+        exit(1);
     }
     return ptr;
 }

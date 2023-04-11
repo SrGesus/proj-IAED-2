@@ -25,6 +25,7 @@ void create_stop(Data *db, Args *args) {
     double lat, lon;
     char *name = args->args[1];
     Stop *stop = get_stop(db, name, NULL);
+    DLNode *node;
 
     if (stop != NULL) {
         printf("%s: stop already exists.\n", name);
@@ -40,7 +41,8 @@ void create_stop(Data *db, Args *args) {
     sscanf(args->args[3], "%lf", &lon);
     stop->lat = lat;
     stop->lon = lon;
-    DLLISTpush(&db->stops, db->stops.tail, stop, db, args);
+    node = DLLISTpush(&db->stops, db->stops.tail, stop, db, args);
+    HASHMAPinsert(&db->stop_hs, node, name);
 }
 
 /*
@@ -69,23 +71,26 @@ void list_stops(Data *db) {
     return;
 }
 
+char *get_stop_name(void *stop_node) {
+  return ((Stop *)((DLNode *)stop_node)->value)->name;
+}
+
 /*
     Returns the pointer to a stop with name == name[]
     or a null pointer if there is none
     Saves index to index if not NULL
 */
 Stop *get_stop(Data *db, char *name, DLNode **node) {
-  int i = 0;
-  DLNode *temp;
-  
+  DLNode *temp = NULL;
+  Stop *stop = NULL;
+  HashObj *object = HASHMAPget(&db->stop_hs, name, get_stop_name);
   if (node == NULL)
     node = &temp;
-
-  /* Linear Search */
-  while (DLLISTiter(&db->stops, &i, node)) {
-    Stop *stop = (*node)->value;
-    if (strcmp(stop->name, name) == 0)
-      return stop;
+  if (object == NULL) {
+    *node = NULL;
+    return NULL;
   }
-  return NULL;
+  *node = object->value;
+  stop = (*node)->value;
+  return stop;
 }

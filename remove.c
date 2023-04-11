@@ -69,15 +69,16 @@ void clean_node_line(DLNode *dlnode) {
 */
 void remove_stop(Data *db, Args *args) {
     DLNode *node = NULL;
-    Stop *stop = get_stop(db, args->args[1], &node);
+    char *name = args->args[1];
+    Stop *stop = get_stop(db, name, &node);
     if (stop == NULL) {
-        printf("%s: no such stop.\n", args->args[1]);
+        printf("%s: no such stop.\n", name);
         return;
     }
 
     VECdestroy(&stop->nodes, clean_node_stop);        
     
-
+    HASHMAPremove(&db->stop_hs, name, get_stop_name);
     DLLISTremove(&db->stops, node);
     free(stop->name);
     free(stop->lines.values);
@@ -112,4 +113,8 @@ void clean_node_stop(void *value) {
 
     DLLISTremove(&node->line->path, dlnode);
     free(node); 
+}
+
+char *get_line_name(void *line_void) {
+  return ((Line *)line_void)->name;
 }

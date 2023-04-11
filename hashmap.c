@@ -5,10 +5,31 @@ void HASHMAPinit(HashMap *hashmap, Data *db, Args *args) {
   hashmap->size = HT_MIN_SIZE;
 }
 
-void HASHMAPinsert(HashMap *hashmap, void *value, char *key) {
-  HashObj *object = calloc(1, sizeof(HashObj));
+void HASHMAPdestroy(HashMap *hashmap) {
+  int i;
+  HashObj *next = NULL, *head;
+  for (i = 0; i < hashmap->size; i++) {
+    head = hashmap->table[i];
+    while (head != NULL) {
+      next = head->next;
+      free(head);
+      head = next;
+    }
+  }
+  free(hashmap->table);
+  hashmap->size = 0;
+  hashmap->length = 0;
+  hashmap->table = NULL;
+}
+
+void HASHMAPinsert(
+  HashMap *hashmap, void *value, char *key, Data *db, Args *args
+) {  
+  HashObj *object = wrap_calloc(1, sizeof(HashObj), db, args);
   unsigned int hash = get_hash(key);
   unsigned int i;
+  if (hashmap->table == NULL)
+    HASHMAPinit(hashmap, db, args);
   hashmap->length++;
   if (hashmap->length > (hashmap->size * 3 / 4)) {
     int new_size = get_new_size(hashmap);
@@ -28,7 +49,10 @@ void HASHMAPinsert(HashMap *hashmap, void *value, char *key) {
 */
 HashObj *HASHMAPget(HashMap *hashmap, char *key, char *get_key(void *)) {
   unsigned int hash = get_hash(key);
-  HashObj *object = hashmap->table[hash % hashmap->size];
+  HashObj *object;
+  if (hashmap->table == NULL)
+    return NULL;
+  object = hashmap->table[hash % hashmap->size];
   while (object != NULL) {
     /* First only check if the hash is eq which is less expensive */
     if (hash == object->hash && !strcmp(key, (*get_key)(object->value))) 

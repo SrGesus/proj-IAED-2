@@ -42,7 +42,7 @@ void create_stop(Data *db, Args *args) {
     stop->lat = lat;
     stop->lon = lon;
     node = DLLISTpush(&db->stops, db->stops.tail, stop, db, args);
-    HASHMAPinsert(&db->stop_hs, node, name);
+    HASHMAPinsert(&db->stop_hs, node, name, db, args);
 }
 
 /*

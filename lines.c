@@ -58,8 +58,8 @@ Line *get_line(Data *db, char *name, DLNode **node) {
 }
 
 /*
-    Allocates a line struct and adds it to the database
-    fetches its name from the args
+  Allocates a line struct and adds it to the database
+  fetches its name from the args
 */
 void create_line(Data *db, Args *args) {
     Line *line = wrap_calloc(1, sizeof(Line), db, args);

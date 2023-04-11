@@ -49,6 +49,7 @@ void clean_args(Args *args) {
 void clean_db(Data *db) {
     DLLISTdestroy(&db->stops, free_stop);
     DLLISTdestroy(&db->lines, free_line);
+    HASHMAPdestroy(&db->stop_hs);
 }
 
 

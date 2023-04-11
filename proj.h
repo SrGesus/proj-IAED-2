@@ -78,13 +78,12 @@ typedef struct {
 
 /*
   The Data struct contains a linked list of stops and lines
-  and one hashmap for each
+  and a hashmap for stops
 */
 typedef struct {
   DLList stops;
   HashMap stop_hs;
   DLList lines;
-  HashMap line_hs;
 } Data;
 
 /*
@@ -121,9 +120,10 @@ int DLLISTiter_iver(DLList *list, int *i, DLNode **node);
 
 /* hashmap.c */
 void HASHMAPinit(HashMap *hashmap, Data *db, Args *args);
+void HASHMAPdestroy(HashMap *hashmap); 
 unsigned int get_hash(char *str);
 int get_new_size(HashMap *hashmap);
-void HASHMAPinsert(HashMap *hashmap, void *value, char *key);
+void HASHMAPinsert(HashMap *hashmap, void *value, char *key, Data *db, Args *args);
 HashObj *HASHMAPget(HashMap *hashmap, char *key, char *get_key(void *));
 void HASHMAPremove(HashMap *hashmap, char *key, char *get_key(void *));
 void HASHMAPresize(HashMap *hashmap, int new_size);

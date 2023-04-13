@@ -1,3 +1,10 @@
+/*
+  File: proj.h
+  Author: Gabriel ist1107030
+  Description: The only header file which includes the std libraries, the
+  constants, struct definitions/typedefs and function declarations.
+*/
+
 #ifndef PROJ_H
 #define PROJ_H
 
@@ -5,39 +12,54 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* useful macros for true and false */
 #define true 1
 #define false 0
 
+/* The Maximum number of arguments in a command (including a command) */
 #define MAX_ARGS 6
-#define HT_MIN_SIZE 5333
-#define BUFFER_SIZE 65535 
 
+/* The Minimum size of the hash table used in the HashMap struct*/
+#define HT_MIN_SIZE 257
 
+/* The size in bytes for string buffers (maximum line size) */
+#define BUFFER_SIZE 65535
+
+/* The non-zero value to be returned as an exit status if there's no memory */
+#define NO_MEMORY_STATUS 1
+
+/* 
+  Simple enum to be returned by functions describing the next action
+  to be taken
+*/
 enum NextAction{EXIT=0, CONTINUE, TYPE};
 
 /* Dynamic Vector */
 typedef struct Vec {
-    void **values;
-    int length;
-    int size;
+  void **values;
+  int length;
+  int size;
 } Vec;
 
-/* Doubly Linked List Abstraction */
+/* Doubly Linked List */
 typedef struct DLNode {
-    struct DLNode *next, *prev;
-    void *value;
+  struct DLNode *next, *prev;
+  void *value;
 } DLNode;
 typedef struct {
-    DLNode *head, *tail;
-    int length;
+  DLNode *head, *tail;
+  int length;
 } DLList;
 
-/* Hash Map */ 
+/* Hash Map */
+/* HashObj stores the hash, value, and a pointer to the next */
 typedef struct HashObj {
   void *value;
   unsigned int hash;
   struct HashObj *next;
 } HashObj;
+
+/* the HashMap struct itself */
 typedef struct {
   HashObj **table;
   int length;
@@ -90,8 +112,8 @@ typedef struct {
   A struct to store the arguments and the argument count
 */
 typedef struct {
-    char *args[MAX_ARGS];
-    int argc;
+  char *args[MAX_ARGS];
+  int argc;
 } Args;
 
 
@@ -112,18 +134,21 @@ int VECiter(Vec *vec, int *i, void **value);
 void VECprint(Vec *vec, char *(*key)(void *));
 
 /* list.c */
-void *DLLISTpush(DLList *list, DLNode *previous, void *value, Data *db, Args *args);
+void *DLLISTpush(
+  DLList *list, DLNode *previous, void *value, Data *db, Args *args
+);
 void *DLLISTremove(DLList *list, DLNode *node);
 void DLLISTdestroy(DLList *list, void (*free_value)(DLNode *));
 int DLLISTiter(DLList *list, int *i, DLNode **node);
-int DLLISTiter_iver(DLList *list, int *i, DLNode **node);
+int DLLISTiter_rev(DLList *list, int *i, DLNode **node);
 
 /* hashmap.c */
-void HASHMAPinit(HashMap *hashmap, Data *db, Args *args);
-void HASHMAPdestroy(HashMap *hashmap); 
+void HASHMAPdestroy(HashMap *hashmap);
 unsigned int get_hash(char *str);
 int get_new_size(HashMap *hashmap);
-void HASHMAPinsert(HashMap *hashmap, void *value, char *key, Data *db, Args *args);
+void HASHMAPinsert(
+  HashMap *hashmap, void *value, char *key, Data *db, Args *args
+);
 HashObj *HASHMAPget(HashMap *hashmap, char *key, char *get_key(void *));
 void HASHMAPremove(HashMap *hashmap, char *key, char *get_key(void *));
 void HASHMAPresize(HashMap *hashmap, int new_size);
@@ -145,6 +170,7 @@ void list_stops(Data *db);
 void describe_stop(Data *db, char *name);
 char *get_stop_name(void *stop_node);
 Stop *get_stop(Data *db, char *name, DLNode **index);
+void handle_inter(Data *db);
 
 /* lines.c */
 void handle_line(Data *db, Args *args);
@@ -156,14 +182,11 @@ void list_lines(Data *db);
 /* connect.c */
 void handle_connect(Data *db, Args *args);
 enum NextAction valid_connect(
-    Args *args, Line *line, Stop *origin, Stop *destination, 
-    double *cost, double *duration
+  Args *args, Line *line, Stop *origin, Stop *destination, 
+  double *cost, double *duration
 );
 StopNode *create_node(Line *line, Stop *stop, Data *db, Args *args, int start);
 void insert_node(Stop *stop, DLNode *node, Data *db, Args *args);
-
-/* intersect.c */
-void handle_inter(Data *db);
 
 /* remove.c */
 void remove_line(Data *db, Args *args);

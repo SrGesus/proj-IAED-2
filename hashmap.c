@@ -1,9 +1,10 @@
-#include "proj.h"
+/*
+  File: hashmap.c
+  Author: Gabriel ist1107030
+  Description: Functions that provide abstraction to the HashMap struct
+*/
 
-void HASHMAPinit(HashMap *hashmap, Data *db, Args *args) {
-  hashmap->table = wrap_calloc(HT_MIN_SIZE, sizeof(HashObj *), db, args);
-  hashmap->size = HT_MIN_SIZE;
-}
+#include "proj.h"
 
 void HASHMAPdestroy(HashMap *hashmap) {
   int i;
@@ -22,14 +23,19 @@ void HASHMAPdestroy(HashMap *hashmap) {
   hashmap->table = NULL;
 }
 
+/*
+
+*/
 void HASHMAPinsert(
   HashMap *hashmap, void *value, char *key, Data *db, Args *args
 ) {  
   HashObj *object = wrap_calloc(1, sizeof(HashObj), db, args);
   unsigned int hash = get_hash(key);
   unsigned int i;
-  if (hashmap->table == NULL)
-    HASHMAPinit(hashmap, db, args);
+  if (hashmap->table == NULL) {
+    hashmap->table = wrap_calloc(HT_MIN_SIZE, sizeof(HashObj *), db, args);
+    hashmap->size = HT_MIN_SIZE;
+  }
   hashmap->length++;
   if (hashmap->length > (hashmap->size * 3 / 4)) {
     int new_size = get_new_size(hashmap);
@@ -85,8 +91,8 @@ void HASHMAPremove(HashMap *hashmap, char *key, char *get_key(void *)) {
     prev->next = object->next;
   else
     hashmap->table[hash % hashmap->size] = object->next;
-  free(object);
   hashmap->length--;
+  free(object);
 }
 
 /*
@@ -102,12 +108,16 @@ unsigned int get_hash(char *str) {
 }
 
 /*
+  Given a new size, this function creates a new hash table and inserts every
+  element of the previous one on the new. 
 */
 void HASHMAPresize(HashMap *hashmap, int new_size) {
   HashObj **new_table = calloc(new_size, sizeof(HashObj *));
   int i;
+  /* If we are not able to alloc a new hashtable simply don't */
   if (!new_table)
     return;
+  /* Insert old HashObj in new table */
   for (i = 0; i < hashmap->size; i++) {
     HashObj *head = hashmap->table[i];
     HashObj *next = NULL;

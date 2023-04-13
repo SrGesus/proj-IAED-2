@@ -1,3 +1,10 @@
+/*
+  File: parsing.c
+  Author: Gabriel ist1107030
+  Description: Includes functions that handle the parsing and reading of input
+  resulting in it being written into the Args struct.
+*/
+
 #include "proj.h"
 
 /*
@@ -6,7 +13,7 @@
 Args read_line(Data *db) {
     int i;
     char c = '\0';
-    char arg[BUFSIZ];
+    char arg[BUFFER_SIZE];
     char *arg_ptr = NULL;
     Args args = {0};
 

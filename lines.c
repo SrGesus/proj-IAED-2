@@ -1,39 +1,46 @@
+/*
+  File: lines.c
+  Author: Gabriel ist1107030
+  Description: Includes the handling of the 'c' command and required functions
+  to handle the creation, listing, and searching of lines.
+*/
+
 #include "proj.h"
 
-
 /*
-    Handles 'c' command
+  Handles 'c' command
 */
 void handle_line(Data *db, Args *args) {
-    int invert = false;
-    Line *line;
+  int invert = false;
+  Line *line;
 
-    /* List lines if there's only one argument */
-    if (args->argc == 1) {
-        list_lines(db);
-        return;
-    }
+  /* List lines if there's only one argument */
+  if (args->argc == 1) {
+    list_lines(db);
+    return;
+  }
 
-    line = get_line(db, args->args[1], NULL);
-    
-    /* Create a line if it doesn't exist */
-    if (line == NULL) {
-        create_line(db, args);
-        return;
+  /* Search for the line in the db */
+  line = get_line(db, args->args[1], NULL);
+  
+  /* Create a line if it doesn't exist */
+  if (line == NULL) {
+    create_line(db, args);
+    return;
+  }
+  
+  /* Check for "inverso" flag */
+  if (args->argc > 2) {
+    if (read_flag(args->args[2], "inverso", 3))
+      invert = true;
+    else {
+      printf("incorrect sort option.\n");
+      return;
     }
-    
-    /* Check for "inverso" flag */
-    if (args->argc > 2) {
-        if (read_flag(args->args[2], "inverso", 3))
-            invert = true;
-        else {
-            printf("incorrect sort option.\n");
-            return;
-        }
-    }
+  }
 
-    describe_line(line, invert);
-    
+  /* Print line data if it exists */
+  describe_line(line, invert);  
 }
 
 /*
@@ -45,6 +52,7 @@ Line *get_line(Data *db, char *name, DLNode **node) {
   int i = 0;
   DLNode *temp;
 
+  /* If we weren't given a node pointer just use temp */
   if (node == NULL)
     node = &temp;
 
@@ -62,39 +70,40 @@ Line *get_line(Data *db, char *name, DLNode **node) {
   fetches its name from the args
 */
 void create_line(Data *db, Args *args) {
-    Line *line = wrap_calloc(1, sizeof(Line), db, args);
-    line->name = args->args[1];
-    /* Remove the pointer to the name from the args struct
-            so it won't be freed later */
-    args->args[1] = NULL;
-    DLLISTpush(&db->lines, db->lines.tail, (void *)line, db, args);
-    return;
+  Line *line = wrap_calloc(1, sizeof(Line), db, args);
+  line->name = args->args[1];
+  /* Remove the pointer to the name from the args struct
+    so it won't be freed later */
+  args->args[1] = NULL;
+  DLLISTpush(&db->lines, db->lines.tail, (void *)line, db, args);
+  return;
 }
 
 /*
-    Prints all stops of a given line
+  Prints all stops of a given line
 */
 void describe_line(Line *line, int invert) {
-    DLNode *node = NULL;
-    int i = 0;
+  DLNode *node = NULL;
+  int i = 0;
 
-    /* If line has no connections break*/
-    if (line->path.length == 0) {
-        return;
-    }
-    
-    if (invert) {
-        DLLISTiter_iver(&line->path, &i, &node);
-        printf("%s", ((StopNode *)node->value)->stop->name);
-        while (DLLISTiter_iver(&line->path, &i, &node))
-            printf(", %s", ((StopNode *)node->value)->stop->name);
-    } else {
-        DLLISTiter(&line->path, &i, &node);
-        printf("%s", ((StopNode *)node->value)->stop->name);
-        while (DLLISTiter(&line->path, &i, &node))
-            printf(", %s", ((StopNode *)node->value)->stop->name);
-    }
-    putchar('\n');
+  /* If line has no connections break*/
+  if (line->path.length == 0) {
+    return;
+  }
+  
+  /* Print every stop name in the right order */
+  if (invert) {
+    DLLISTiter_rev(&line->path, &i, &node);
+    printf("%s", ((StopNode *)node->value)->stop->name);
+    while (DLLISTiter_rev(&line->path, &i, &node))
+      printf(", %s", ((StopNode *)node->value)->stop->name);
+  } else {
+    DLLISTiter(&line->path, &i, &node);
+    printf("%s", ((StopNode *)node->value)->stop->name);
+    while (DLLISTiter(&line->path, &i, &node))
+      printf(", %s", ((StopNode *)node->value)->stop->name);
+  }
+  putchar('\n');
 }
 
 /*

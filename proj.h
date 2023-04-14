@@ -5,8 +5,8 @@
   constants, struct definitions/typedefs and function declarations.
 */
 
-#ifndef PROJ_H
-#define PROJ_H
+#ifndef PROJ_H_
+#define PROJ_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +32,7 @@
   Simple enum to be returned by functions describing the next action
   to be taken
 */
-enum NextAction{EXIT=0, CONTINUE, TYPE};
+enum NextAction{EXIT = 0, CONTINUE, TYPE};
 
 /* Dynamic Vector */
 typedef struct Vec {
@@ -84,7 +84,7 @@ typedef struct {
 typedef struct {
   char *name;
   double lat, lon;
-  Vec nodes; 
+  Vec nodes;
   Vec lines; /* Sorted alphabetically by line name */
 } Stop;
 
@@ -131,27 +131,24 @@ void VECinsert(Vec *vec, int i, void *value, Data *db, Args *args);
 void VECremove(Vec *vec, int i, Data *db, Args *args);
 void VECdestroy(Vec *vec, void (*free_value)(void *));
 int VECiter(Vec *vec, int *i, void **value);
-void VECprint(Vec *vec, char *(*key)(void *));
 
 /* list.c */
-void *DLLISTpush(
-  DLList *list, DLNode *previous, void *value, Data *db, Args *args
-);
-void *DLLISTremove(DLList *list, DLNode *node);
+void *DLLISTinsert(
+  DLList *list, DLNode *previous, void *value, Data *db, Args *args);
+void DLLISTremove(DLList *list, DLNode *node);
 void DLLISTdestroy(DLList *list, void (*free_value)(DLNode *));
 int DLLISTiter(DLList *list, int *i, DLNode **node);
 int DLLISTiter_rev(DLList *list, int *i, DLNode **node);
 
 /* hashmap.c */
-void HASHMAPdestroy(HashMap *hashmap);
-unsigned int get_hash(char *str);
-int get_new_size(HashMap *hashmap);
 void HASHMAPinsert(
-  HashMap *hashmap, void *value, char *key, Data *db, Args *args
-);
+  HashMap *hashmap, void *value, char *key, Data *db, Args *args);
 HashObj *HASHMAPget(HashMap *hashmap, char *key, char *get_key(void *));
 void HASHMAPremove(HashMap *hashmap, char *key, char *get_key(void *));
+void HASHMAPdestroy(HashMap *hashmap);
 void HASHMAPresize(HashMap *hashmap, int new_size);
+unsigned int get_hash(char *str);
+int get_new_size(HashMap *hashmap);
 
 /* memory.c */
 void *wrap_calloc(size_t n, size_t size, Data *db, Args *args);
@@ -182,9 +179,8 @@ void list_lines(Data *db);
 /* connect.c */
 void handle_connect(Data *db, Args *args);
 enum NextAction valid_connect(
-  Args *args, Line *line, Stop *origin, Stop *destination, 
-  double *cost, double *duration
-);
+  Args *args, Line *line, Stop *origin, Stop *destination,
+  double *cost, double *duration);
 StopNode *create_node(Line *line, Stop *stop, Data *db, Args *args, int start);
 void insert_node(Stop *stop, DLNode *node, Data *db, Args *args);
 
@@ -195,4 +191,4 @@ void clean_node_line(DLNode *dlnode);
 void remove_stop(Data *db, Args *args);
 void clean_node_stop(void *value);
 
-#endif
+#endif /* PROJ_H_ */

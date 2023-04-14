@@ -5,7 +5,7 @@
   of memory, including a wrapper for calloc and realloc.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   A wrapper for malloc that cleans everything and exits the program
@@ -13,7 +13,7 @@
 */
 void *wrap_calloc(size_t n, size_t size, Data *db, Args *args) {
   void *ptr = calloc(n, size);
-  
+
   /* Frees all data and exits program with a non-zero value */
   if (ptr == NULL && n*size != 0) {
     printf("No Memory.\n");
@@ -46,7 +46,7 @@ void *wrap_realloc(void *ptr, size_t n, size_t size, Data *db, Args *args) {
 */
 void clean_args(Args *args) {
   int i;
-  for(i = 0; i < args->argc; i++) {
+  for (i = 0; i < args->argc; i++) {
     free(args->args[i]);
   }
   args->argc = 0;

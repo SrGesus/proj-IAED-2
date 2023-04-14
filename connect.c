@@ -5,7 +5,7 @@
   to handle the connections between stops
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   Handles 'l' command
@@ -42,7 +42,7 @@ void handle_connect(Data *db, Args *args) {
 
   if (head != NULL) {
     return;
-  } 
+  }
 
   /* If line was originally empty we still need to add the last node */
   create_node(line, destination, db, args, false);
@@ -58,9 +58,9 @@ StopNode *create_node(Line *line, Stop *stop, Data *db, Args *args, int start) {
   node->stop = stop;
   /* Insert it at the start or end depending on the passed value */
   if (start) {
-    dlnode = DLLISTpush(&line->path, NULL, node, db, args);
+    dlnode = DLLISTinsert(&line->path, NULL, node, db, args);
   } else {
-    dlnode = DLLISTpush(&line->path, line->path.tail, node, db, args);
+    dlnode = DLLISTinsert(&line->path, line->path.tail, node, db, args);
   }
   insert_node(node->stop, dlnode, db, args);
   return node;
@@ -88,7 +88,7 @@ void insert_node(Stop *stop, DLNode *dlnode, Data *db, Args *args) {
       break;
     }
   }
-  
+
   /* Insert the name into the position */
   VECinsert(&stop->lines, i, node->line->name, db, args);
 }
@@ -97,12 +97,11 @@ void insert_node(Stop *stop, DLNode *dlnode, Data *db, Args *args) {
   Checks whether the arguments create a valid connection
 */
 enum NextAction valid_connect(
-  Args *args, Line *line, Stop *origin, Stop *destination, 
+  Args *args, Line *line, Stop *origin, Stop *destination,
   double *cost, double *duration
 ) {
-  
-  sscanf(args->args[4], "%lf", cost);
-  sscanf(args->args[5], "%lf", duration);
+  *cost = atof(args->args[4]);
+  *duration = atof(args->args[5]);
 
   /* if any line/stop doesn't exist exit*/
   if (line == NULL) {
@@ -129,8 +128,8 @@ enum NextAction valid_connect(
 
   /* if there are stops in the line 
   and the connection is between invalid stops */
-  if (line->path.head != NULL && 
-  (destination != ((StopNode *)line->path.head->value)->stop && 
+  if (line->path.head != NULL &&
+  (destination != ((StopNode *)line->path.head->value)->stop &&
   origin != ((StopNode *)line->path.tail->value)->stop)) {
     printf("link cannot be associated with bus line.\n");
     return EXIT;

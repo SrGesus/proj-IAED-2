@@ -4,12 +4,14 @@
   Description: Functions that provide abstraction to the DLList struct
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*  
   Inserts node after given node, or as head if given node is NULL
 */
-void *DLLISTpush(DLList *list, DLNode *previous, void *value, Data *db, Args *args) {
+void *DLLISTinsert(
+  DLList *list, DLNode *previous, void *value, Data *db, Args *args
+) {
   DLNode *node = wrap_calloc(1, sizeof(DLNode), db, args);
   node->value = value;
   node->prev = previous;
@@ -33,9 +35,9 @@ void *DLLISTpush(DLList *list, DLNode *previous, void *value, Data *db, Args *ar
 /*
   Removes given node from a doubly linked list
 */
-void *DLLISTremove(DLList *list, DLNode *node) {
+void DLLISTremove(DLList *list, DLNode *node) {
   if (node == NULL) {
-    return NULL;
+    return;
   }
   if (list->head == node) {
     list->head = node->next;
@@ -51,7 +53,7 @@ void *DLLISTremove(DLList *list, DLNode *node) {
   }
   list->length--;
   free(node);
-  return NULL;
+  return;
 }
 
 /*
@@ -62,8 +64,8 @@ void DLLISTdestroy(DLList *list, void (*free_node)(DLNode *)) {
   int i = 0;
   DLNode *node = NULL;
   DLNode *prev = NULL;
-  
-  while(DLLISTiter(list, &i, &node)) {
+
+  while (DLLISTiter(list, &i, &node)) {
     (*free_node)(prev);
     prev = node;
   }

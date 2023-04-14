@@ -5,7 +5,7 @@
   to handle the creation, listing, and searching of lines.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   Handles 'c' command
@@ -22,25 +22,25 @@ void handle_line(Data *db, Args *args) {
 
   /* Search for the line in the db */
   line = get_line(db, args->args[1], NULL);
-  
+
   /* Create a line if it doesn't exist */
   if (line == NULL) {
     create_line(db, args);
     return;
   }
-  
+
   /* Check for "inverso" flag */
   if (args->argc > 2) {
-    if (read_flag(args->args[2], "inverso", 3))
+    if (read_flag(args->args[2], "inverso", 3)) {
       invert = true;
-    else {
+    } else {
       printf("incorrect sort option.\n");
       return;
     }
   }
 
   /* Print line data if it exists */
-  describe_line(line, invert);  
+  describe_line(line, invert);
 }
 
 /*
@@ -58,7 +58,7 @@ Line *get_line(Data *db, char *name, DLNode **node) {
 
   /* Linear search */
   while (DLLISTiter(&db->lines, &i, node)) {
-    Line *line = (*node)->value;  
+    Line *line = (*node)->value;
     if (strcmp(line->name, name) == 0)
       return line;
   }
@@ -75,7 +75,7 @@ void create_line(Data *db, Args *args) {
   /* Remove the pointer to the name from the args struct
     so it won't be freed later */
   args->args[1] = NULL;
-  DLLISTpush(&db->lines, db->lines.tail, (void *)line, db, args);
+  DLLISTinsert(&db->lines, db->lines.tail, (void *)line, db, args);
   return;
 }
 
@@ -90,7 +90,7 @@ void describe_line(Line *line, int invert) {
   if (line->path.length == 0) {
     return;
   }
-  
+
   /* Print every stop name in the right order */
   if (invert) {
     DLLISTiter_rev(&line->path, &i, &node);
@@ -112,8 +112,8 @@ void describe_line(Line *line, int invert) {
 void list_lines(Data *db) {
   int i = 0;
   DLNode *node = NULL;
+
   while (DLLISTiter(&db->lines, &i, &node)) {
-      
     Line *line = node->value;
     printf("%s ", line->name);
     /* Don't print origin and destination if they don't exist*/

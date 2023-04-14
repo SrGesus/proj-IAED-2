@@ -6,7 +6,7 @@
   which concerns the listing of stops with connections to different lines.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   Handles 'p' command
@@ -21,7 +21,7 @@ void handle_stop(Data *db, Args *args) {
     describe_stop(db, args->args[1]);
     return;
   }
-  
+
   create_stop(db, args);
 }
 
@@ -29,7 +29,6 @@ void handle_stop(Data *db, Args *args) {
   Attempts to create a stop with the given name, and location
 */
 void create_stop(Data *db, Args *args) {
-  double lat, lon;
   char *name = args->args[1];
   Stop *stop = get_stop(db, name, NULL);
   DLNode *node;
@@ -44,11 +43,9 @@ void create_stop(Data *db, Args *args) {
   /* Remove the pointer to the name from the args struct
       so it won't be freed later */
   args->args[1] = NULL;
-  sscanf(args->args[2], "%lf", &lat);
-  sscanf(args->args[3], "%lf", &lon);
-  stop->lat = lat;
-  stop->lon = lon;
-  node = DLLISTpush(&db->stops, db->stops.tail, stop, db, args);
+  stop->lat = atof(args->args[2]);
+  stop->lon = atof(args->args[3]);
+  node = DLLISTinsert(&db->stops, db->stops.tail, stop, db, args);
   HASHMAPinsert(&db->stop_hs, node, name, db, args);
 }
 
@@ -123,7 +120,7 @@ void handle_inter(Data *db) {
       continue;
 
     printf("%s %d:", stop->name, stop->lines.length);
-    
+
     j = 0;
     while (VECiter(&stop->lines, &j, (void**)&line_name)) {
       printf(" %s", line_name);

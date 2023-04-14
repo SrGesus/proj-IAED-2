@@ -5,7 +5,7 @@
   the handling of the 'r' and 'e' commands.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   Handles 'r' command
@@ -56,7 +56,7 @@ void clean_node_line(DLNode *dlnode) {
     if (dlnode == dlnode_iter) {
       VECremove(&stop->nodes, --i, NULL, NULL);
       break;
-    };
+    }
 
   /* Remove line name from stop->lines */
   i = 0;
@@ -66,7 +66,7 @@ void clean_node_line(DLNode *dlnode) {
     if (((StopNode *)dlnode->value)->line->name == line_name) {
       VECremove(&stop->lines, --i, NULL, NULL);
       break;
-    };
+    }
 
   free_node(dlnode);
 }
@@ -83,8 +83,8 @@ void remove_stop(Data *db, Args *args) {
     return;
   }
 
-  VECdestroy(&stop->nodes, clean_node_stop);    
-  
+  VECdestroy(&stop->nodes, clean_node_stop);
+
   HASHMAPremove(&db->stop_hs, name, get_stop_name);
   DLLISTremove(&db->stops, node);
   free(stop->name);
@@ -102,22 +102,26 @@ void clean_node_stop(void *value) {
   DLNode *dlnode = value;
   StopNode *node = dlnode->value;
 
+  /* Adjust connection cost and duration*/
   if (dlnode->prev) {
     StopNode *prev = dlnode->prev->value;
     if (dlnode->next) {
+      /* Middle of the Line */
       prev->duration += node->duration;
       prev->cost += node->cost;
     } else {
+      /* End of Line */
       node->line->duration -= prev->duration;
       node->line->cost -= prev->cost;
       prev->duration = 0.0;
       prev->cost = 0.0;
     }
   } else {
+    /* Start of Line*/
     node->line->duration -= node->duration;
     node->line->cost -= node->cost;
   }
 
   DLLISTremove(&node->line->path, dlnode);
-  free(node); 
+  free(node);
 }

@@ -4,7 +4,7 @@
   Description: Functions that provide abstraction to the Vec struct
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
   Inserts value into position i of the vector and expands it
@@ -18,10 +18,11 @@ void VECinsert(Vec *vec, int i, void *value, Data *db, Args *args) {
       vec->size++;
     }
     vec->size *= 2;
-    vec->values = wrap_realloc(vec->values, vec->size, sizeof(void *), db, args);
+    vec->values = wrap_realloc(
+      vec->values, vec->size, sizeof(void *), db, args);
   }
   /* Shift items to the right of i one step right */
-  for(j = vec->length-1; j > i; j--) {
+  for (j = vec->length-1; j > i; j--) {
     vec->values[j] = vec->values[j-1];
   }
   vec->values[i] = value;
@@ -55,7 +56,7 @@ void VECremove(Vec *vec, int i, Data *db, Args *args) {
 void VECdestroy(Vec *vec, void (*free_value)(void *)) {
   int i = 0;
   void *value = 0;
-  while(VECiter(vec, &i, &value)) {
+  while (VECiter(vec, &i, &value)) {
     (*free_value)(value);
   }
   free(vec->values);

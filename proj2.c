@@ -8,7 +8,7 @@
   as input 8 different commands.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 int main() {
   Data db = {0};

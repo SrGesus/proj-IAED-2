@@ -5,7 +5,7 @@
   resulting in it being written into the Args struct.
 */
 
-#include "proj.h"
+#include "./proj.h"
 
 /*
     Reads a line and returns it as an args struct
@@ -37,7 +37,7 @@ char read_name(char str[]) {
     char c;
     int i = 0, open_aspas = false, non_white = false;
 
-    while(true)
+    while (true)
         switch (typing_name(&c, &open_aspas, &non_white)) {
             case CONTINUE:
                 break;
@@ -47,7 +47,7 @@ char read_name(char str[]) {
             case EXIT:
                 str[i++] = '\0';
                 return c;
-        };
+        }
 }
 
 /*

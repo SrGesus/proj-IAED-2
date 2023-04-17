@@ -12,7 +12,7 @@ Informações detalhadas sobre o processo de submissão estão disponíveis em [
 
 # Evaluation
 
-2023-04-14T14:24:30
+Fri Apr 14 14:24:36 2023 +0100
 
 ## Test 1: [+ Accepted+].
 ## Test 2: [+ Accepted+].
@@ -51,27 +51,5 @@ Informações detalhadas sobre o processo de submissão estão disponíveis em [
 ## Number of passed tests: 32/32
 
 
-## Valgrind Output:
-
-
-```
-==6014== Memcheck, a memory error detector
-==6014== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==6014== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
-==6014== Command: ./proj.out
-==6014== 
-==6014== 
-==6014== HEAP SUMMARY:
-==6014==     in use at exit: 0 bytes in 0 blocks
-==6014==   total heap usage: 334 allocs, 334 frees, 14,574 bytes allocated
-==6014== 
-==6014== All heap blocks were freed -- no leaks are possible
-==6014== 
-==6014== For counts of detected and suppressed errors, rerun with: -v
-==6014== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-
-```
-
-
-Your code will not be reevaluated if you submit before 2023-04-14 14:34:30 @ Lisbon, Portugal. You need to wait 10 minute(s).
+Your code will not be reevaluated. The project deadline has passed.
 
